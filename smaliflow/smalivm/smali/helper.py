@@ -1,0 +1,35 @@
+from smalivm.smali.instructions import (
+    InvokeSuperRange,
+    InvokeVirtual,
+    InvokeCustom,
+    InvokeDirect,
+    InvokeSuper,
+    InvokeInterface,
+    InvokePolymorphic,
+    InvokeStatic,
+    InvokeVirtualRange,
+    InvokeCustomRange,
+    InvokeDirectRange,
+    InvokeInterfaceRange,
+    InvokePolymorphicRange,
+    InvokeStaticRange,
+    InvokeVirtualRange,
+)
+
+
+INSTRUCTION_TYPE_INVOKE = (
+    InvokeVirtual,
+    InvokeDirect,
+    InvokeStatic,
+    InvokeCustom,
+    InvokeSuper,
+    InvokeSuperRange,
+    InvokeInterface,
+    InvokePolymorphic,
+    InvokeVirtualRange,
+    InvokeDirectRange,
+    InvokeStaticRange,
+    InvokeCustomRange,
+    InvokeInterfaceRange,
+    InvokePolymorphicRange,
+)

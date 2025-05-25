@@ -1,0 +1,1 @@
+from .smalivm import Vm
