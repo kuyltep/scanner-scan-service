@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  scanner-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: scanner-scan-service
+    environment:
+      - PYTHONPATH=/home/scanner/app
+      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      - WKHTMLTOPDF_CMD=/usr/local/bin/wkhtmltopdf-headless
+    volumes:
+      - .:/home/scanner/app
+      - ./tmp:/home/scanner/app/tmp
+      - ./reports:/home/scanner/app/reports
+      - ./logs:/home/scanner/app/logs
+    ports:
+      - "8000:8000"
+    depends_on:
+      - kafka
+      - minio
+      - redis
+    networks:
+      - scanner-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.path.insert(0, 'vulnapk'); from vulnapk_client import VulnApkClient; print('Health check passed')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Kafka for message queue
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: scanner-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - scanner-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: scanner-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    networks:
+      - scanner-network
+
+  # MinIO for file storage
+  minio:
+    image: minio/minio:latest
+    container_name: scanner-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - scanner-network
+
+  # Redis for caching and background tasks
+  redis:
+    image: redis:7-alpine
+    container_name: scanner-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - scanner-network
+
+  # Optional: Kafka UI for development
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: scanner-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - scanner-network
+    profiles:
+      - dev
+
+  # Optional: MinIO Console (already included in minio service)
+  # Access at http://localhost:9001
+
+volumes:
+  minio_data:
+  redis_data:
+
+networks:
+  scanner-network:
+    driver: bridge 

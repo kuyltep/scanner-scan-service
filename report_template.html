@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Отчет по анализу</title>
+    <style>
+      /* Общие стили */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9fafb; /* Более светлый фон */
+        line-height: 1.6;
+        color: #333;
+      }
+
+      /* Контейнер для контента */
+      .container {
+        max-width: 1000px; /* Ограничение ширины для А4 */
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border: 1px solid #e5e7eb; /* Светлая рамка */
+        border-radius: 12px; /* Закругленные углы */
+        font-size: 14px; /* Уменьшение шрифта для компактности */
+      }
+
+      /* Заголовок */
+      h1 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      /* Информация о проекте */
+      p {
+        margin: 5px 0;
+        font-size: 14px;
+      }
+
+      /* Заголовок "Список дефектов" */
+      h2 {
+        font-size: 18px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #b0b4b2; /* Легкая разделительная линия */
+        padding-bottom: 5px;
+      }
+
+      /* Таблица */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        border: 1px solid #e5e7eb; /* Светлая граница */
+        padding: 8px;
+        text-align: left;
+        font-size: 12px; /* Уменьшение шрифта для таблицы */
+      }
+
+      th {
+        background-color: #f3f4f6; /* Светло-серый фон для заголовков */
+        font-weight: bold;
+        text-align: center;
+        color: #374151; /* Темно-серый текст */
+      }
+
+      tr:nth-child(even) {
+        background-color: #f9fafb; /* Очень светлый фон для четных строк */
+      }
+
+      tr:hover {
+        background-color: #f0fdf4; /* Светло-зеленый фон при наведении */
+      }
+
+      /* Стили для JSON-деталей */
+      .details {
+        white-space: pre-wrap; /* Сохраняет форматирование JSON */
+        font-family: monospace;
+        font-size: 12px; /* Уменьшение шрифта для JSON */
+        background-color: #f3f4f6; /* Светло-серый фон */
+        padding: 10px;
+        border: 1px solid #e5e7eb; /* Светлая граница */
+        max-height: 150px; /* Ограничение высоты для больших JSON */
+        overflow-y: auto; /* Добавление прокрутки при необходимости */
+        border-radius: 4px; /* Закругленные углы */
+      }
+
+      /* Отступы для страницы А4 */
+      @media print {
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: white;
+        }
+
+        .container {
+          margin: 20mm auto; /* Отступы для печати (верх/низ: 20 мм, боковые: авто) */
+          padding: 20px;
+        }
+
+        table {
+          font-size: 10px; /* Уменьшение шрифта для печати */
+        }
+
+        th,
+        td {
+          font-size: 10px;
+        }
+
+        .details {
+          font-size: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Отчет по анализу</h1>
+      <p><strong>Проект:</strong> {{ project_name }}</p>
+      <p><strong>Название приложения:</strong> {{ app_name }}</p>
+      <p><strong>Дата анализа:</strong> {{ analysis_date }}</p>
+
+      <!-- Заголовок "Список дефектов" -->
+      <h2>Список дефектов</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Детали</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for defect in defects %}
+          <tr>
+            <td>{{ defect.id }}</td>
+            <td>{{ defect.name }}</td>
+            <td class="details">{{ defect.details }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
