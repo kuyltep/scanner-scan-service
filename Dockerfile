@@ -89,19 +89,6 @@ COPY report_template.html ./
 
 # Create scan.json if it doesn't exist (fallback data)
 RUN echo '[]' > scan.json
-
-# Create environment file template
-RUN echo "# Environment variables for scanner service" > .env.template && \
-    echo "KAFKA_HOST=localhost:9092" >> .env.template && \
-    echo "KAFKA_RECIEVE_TOPIC=scan-requests" >> .env.template && \
-    echo "KAFKA_SEND_TOPIC=scan-results" >> .env.template && \
-    echo "KAFKA_GROUP_ID=scanner-group" >> .env.template && \
-    echo "MINIO_ENDPOINT=localhost:9000" >> .env.template && \
-    echo "MINIO_ACCESS_KEY=minioadmin" >> .env.template && \
-    echo "MINIO_SECRET_KEY=minioadmin" >> .env.template && \
-    echo "MINIO_BUCKET_SCANS=scans" >> .env.template && \
-    echo "MINIO_BUCKET_RESULTS=results" >> .env.template
-
 # Switch to application user
 USER scanner
 
