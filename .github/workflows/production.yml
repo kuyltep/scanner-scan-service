@@ -1,0 +1,33 @@
+name: production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - scanner-scan
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build new image
+        run: |
+          docker build ./ -t scanner-scan:latest
+
+      - name: Stop and remove old containers
+        run: |
+          cd scanner
+          docker-compose down
+
+      - name: Start new containers
+        run: |
+          cd scanner
+          docker-compose up -d
+
+      - name: Clean up old images
+        run: |
+          docker image prune -f

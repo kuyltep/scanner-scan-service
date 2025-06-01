@@ -1,5 +1,5 @@
 # Multi-stage build for optimized production image
-FROM python:3.11-slim as base
+FROM python:alpine as base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
