@@ -17,17 +17,3 @@ jobs:
       - name: Build new image
         run: |
           docker build ./ -t scanner-scan:latest
-
-      - name: Stop and remove old containers
-        run: |
-          cd scanner
-          docker-compose down
-
-      - name: Start new containers
-        run: |
-          cd scanner
-          docker-compose up -d
-
-      - name: Clean up old images
-        run: |
-          docker image prune -f
