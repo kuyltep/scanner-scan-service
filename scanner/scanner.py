@@ -1,7 +1,6 @@
 import json
 import locale
 import time
-import pdfkit
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 import os
@@ -10,29 +9,50 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
+# PDF generation using weasyprint (Alpine-compatible)
+try:
+    from weasyprint import HTML
+    PDF_BACKEND = 'weasyprint'
+except ImportError:
+    import pdfkit
+    PDF_BACKEND = 'pdfkit'
+
 # Add VulnApk to path
 vulnapk_path = os.path.join(os.getcwd(), "vulnapk")
 if vulnapk_path not in sys.path:
     sys.path.insert(0, vulnapk_path)
 
-from vulnapk_client import VulnApkClient
+# Try to import VulnApk client with error handling
+try:
+    from vulnapk_client import VulnApkClient
+    VULNAPK_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: VulnApk not available: {e}")
+    VulnApkClient = None
+    VULNAPK_AVAILABLE = False
 
 # Установка локали на русский язык
 # locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')  # Для Linux/macOS
-locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')  # Для Windows
+try:
+    locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')  # Для Windows
+except:
+    locale.setlocale(locale.LC_TIME, 'C')  # Fallback for Alpine/Linux
 
 class Scanner:
     def __init__(self):
-        self.vulnapk_client = VulnApkClient(
-            temp_dir=os.path.join(os.getcwd(), "tmp", "vulnapk"),
-            log_level=20  # INFO level
-        )
+        if VULNAPK_AVAILABLE:
+            self.vulnapk_client = VulnApkClient(
+                temp_dir=os.path.join(os.getcwd(), "tmp", "vulnapk"),
+                log_level=20  # INFO level
+            )
+        else:
+            self.vulnapk_client = None
     
     def scan_file(self, file_path: str, file_name: str, folder_name: str, name: str):
         """Main scanning method that routes to appropriate scanner based on file type"""
         
-        # Check if file is APK
-        if file_path.lower().endswith('.apk'):
+        # Check if file is APK and VulnApk is available
+        if file_path.lower().endswith('.apk') and VULNAPK_AVAILABLE:
             return self._scan_apk_file(file_path, file_name, folder_name, name)
         else:
             return self._scan_default_file(file_path, file_name, folder_name, name)
@@ -40,13 +60,17 @@ class Scanner:
     async def scan_file_async(self, file_path: str, file_name: str, folder_name: str, name: str):
         """Async version of scan_file for better performance"""
         
-        if file_path.lower().endswith('.apk'):
+        if file_path.lower().endswith('.apk') and VULNAPK_AVAILABLE:
             return await self._scan_apk_file_async(file_path, file_name, folder_name, name)
         else:
             return self._scan_default_file(file_path, file_name, folder_name, name)
     
     def _scan_apk_file(self, file_path: str, file_name: str, folder_name: str, name: str):
         """Synchronous APK scanning using VulnApk"""
+        
+        if not VULNAPK_AVAILABLE:
+            print("VulnApk not available, falling back to default scanning")
+            return self._scan_default_file(file_path, file_name, folder_name, name)
         
         try:
             # Run VulnApk analysis
@@ -72,6 +96,10 @@ class Scanner:
     
     async def _scan_apk_file_async(self, file_path: str, file_name: str, folder_name: str, name: str):
         """Async APK scanning using VulnApk"""
+        
+        if not VULNAPK_AVAILABLE:
+            print("VulnApk not available, falling back to default scanning")
+            return self._scan_default_file(file_path, file_name, folder_name, name)
         
         try:
             # Run async VulnApk analysis
@@ -175,10 +203,21 @@ class Scanner:
             base_name = base_name.split('-')[1]
         pdf_filename = f"{time.time_ns()}-{base_name}.pdf"
         pdf_filepath = os.path.join(os.getcwd(), pdf_filename)
-        config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
-
-        # Конвертация HTML в PDF
-        pdfkit.from_string(html_output, pdf_filename, configuration=config)
+        
+        # Generate PDF using available backend
+        if PDF_BACKEND == 'weasyprint':
+            # Use weasyprint (works well in Alpine)
+            HTML(string=html_output).write_pdf(pdf_filepath)
+        else:
+            # Use pdfkit (for Windows compatibility)
+            try:
+                # Try Linux/Alpine path first
+                config = pdfkit.configuration(wkhtmltopdf="/usr/local/bin/wkhtmltopdf")
+            except:
+                # Fallback to Windows path
+                config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+            
+            pdfkit.from_string(html_output, pdf_filename, configuration=config)
 
         print("PDF-отчет успешно создан!")
 
