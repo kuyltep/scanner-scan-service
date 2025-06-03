@@ -31,7 +31,6 @@ RUN apt-get update && apt-get install -y \
     fontconfig \
     fonts-dejavu \
     fonts-liberation \
-    musl-dev \
     linux-headers-amd64 \
     && rm -rf /var/lib/apt/lists/*
 
