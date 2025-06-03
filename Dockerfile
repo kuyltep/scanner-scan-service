@@ -1,3 +1,4 @@
+# Multi-stage build for optimized production image
 FROM python:slim as base
 
 # Set environment variables
