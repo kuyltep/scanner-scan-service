@@ -1,3 +1,17 @@
 kafka-python==2.1.2
 minio==7.1.4
 python-dotenv==1.0.0
+beautifulsoup4==4.13.4
+certifi==2025.4.26
+charset-normalizer==3.4.2
+colorama==0.4.6
+idna==3.10
+lxml==5.4.0
+more-itertools==10.7.0
+requests==2.32.3
+# Editable install with no version control (smalivm==0.1.0)
+-e ./smaliflow
+soupsieve==2.7
+tqdm==4.67.1
+typing_extensions==4.13.2
+urllib3==2.4.0
