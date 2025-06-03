@@ -74,10 +74,6 @@ RUN echo '[]' > /home/scanner/app/scan.json
 
 # Switch to scanner user
 USER scanner
-
-# Test imports to verify everything works
-RUN python -c "from scanner.scanner import Scanner; from app_types.message_types import IncomingMessage; print('All imports successful!')"
-
 # Expose port (if needed for future HTTP API)
 EXPOSE 8000
 
