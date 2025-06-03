@@ -1,44 +1,42 @@
 # Multi-stage build for optimized production image
-FROM python:slim as base
+FROM python:3.9-slim as base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    JAVA_HOME=/usr/lib/jvm/java-11-openjdk \
-    PATH=$PATH:/usr/lib/jvm/java-11-openjdk/bin
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
+    PATH=$PATH:/usr/lib/jvm/java-11-openjdk-amd64/bin
 
-# Install system dependencies
-RUN apk update && apk add --no-cache \
-    # Java for APK decompilation
-    openjdk11-jdk \
-    # Build tools and utilities
-    build-base \
+# Install system dependencies via apt
+RUN apt-get update && apt-get install -y \
+    openjdk-11-jdk \
+    build-essential \
     curl \
     wget \
     unzip \
     git \
     bash \
-    # WeasyPrint dependencies
-    glib-dev \
-    pango-dev \
-    cairo-dev \
-    gdk-pixbuf-dev \
-    libffi-dev \
-    gobject-introspection-dev \
-    # Fonts for PDF generation
-    fontconfig \
-    ttf-dejavu \
-    ttf-liberation \
-    # Additional Alpine dependencies
-    musl-dev \
-    linux-headers \
-    # XML processing libraries
+    libglib2.0-0 \
+    libpango1.0-0 \
+    libcairo2 \
+    libgdk-pixbuf2.0-0 \
+    libglib2.0-dev \
+    libpango1.0-dev \
+    libcairo2-dev \
+    libgdk-pixbuf2.0-dev \
     libxml2-dev \
     libxslt-dev \
-    && rm -rf /var/cache/apk/*
+    libffi-dev \
+    libgobject-2.0-dev \
+    fontconfig \
+    fonts-dejavu \
+    fonts-liberation \
+    musl-dev \
+    linux-headers-amd64 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Verify Java installation
-RUN java -version && javac -version
+RUN apt-get daup && apt-get instatell -y aapt p7zip-full && java -version && javac -version
 
 # Create application user (Alpine way)
 RUN addgroup -g 1000 scanner && \
