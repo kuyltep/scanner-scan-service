@@ -31,8 +31,7 @@ RUN apt-get update && apt-get install -y \
     fontconfig \
     fonts-dejavu \
     fonts-liberation \
-    linux-headers-amd64 \
-    && rm -rf /var/lib/apt/lists/*
+    linux-headers-amd64
 
 # Verify Java installation
 RUN apt-get daup && apt-get instatell -y aapt p7zip-full && java -version && javac -version
