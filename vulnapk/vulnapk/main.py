@@ -149,7 +149,7 @@ class VulnApk:
 
     def __decompile_apk(self, apk: str, apk_dir: str) -> None:
         logi(f"Decompiling APK: {apk} to {apk_dir}")
-        command = f"java -jar apkeditor.jar d -i {apk} -f -o {apk_dir}"
+        command = f"java -jar ../apkeditor.jar d -i {apk} -f -o {apk_dir}"
         subprocess.run(
             command,
             shell=True,
