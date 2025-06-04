@@ -124,9 +124,18 @@ class VulnApk:
 
     def __download_and_process_apk(self, pkg: str) -> list[dict[str, Any]]:
         with tempfile.NamedTemporaryFile() as apk_file:
+            # Get absolute path to apkd executable - same directory as apkeditor.jar
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            apkd_name = "apkd.exe" if os.name == "nt" else "apkd"
+            apkd_path = os.path.join(current_dir, "..", "..", apkd_name)
+            apkd_path = os.path.abspath(apkd_path)
+            
+            if not os.path.exists(apkd_path):
+                raise FileNotFoundError(f"{apkd_name} not found at {apkd_path}")
+            
             proc = subprocess.run(
                 [
-                    "./apkd.exe" if os.name == "nt" else "./apkd",
+                    apkd_path,
                     "-p",
                     pkg,
                     "-o",
@@ -149,7 +158,18 @@ class VulnApk:
 
     def __decompile_apk(self, apk: str, apk_dir: str) -> None:
         logi(f"Decompiling APK: {apk} to {apk_dir}")
-        command = f"java -jar ../apkeditor.jar d -i {apk} -f -o {apk_dir}"
+        
+        # Get absolute path to apkeditor.jar - go up two levels from this file
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        apkeditor_path = os.path.join(current_dir, "..", "..", "apkeditor.jar")
+        apkeditor_path = os.path.abspath(apkeditor_path)
+
+        print(apkeditor_path)
+        
+        if not os.path.exists(apkeditor_path):
+            raise FileNotFoundError(f"apkeditor.jar not found at {apkeditor_path}")
+        
+        command = f"java -jar {apkeditor_path} d -i {apk} -f -o {apk_dir}"
         subprocess.run(
             command,
             shell=True,
