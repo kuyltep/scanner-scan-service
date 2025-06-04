@@ -161,7 +161,7 @@ class VulnApk:
         
         # Get absolute path to apkeditor.jar - go up two levels from this file
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        apkeditor_path = os.path.join(current_dir, "..", "..", "apkeditor.jar")
+        apkeditor_path = os.path.join(current_dir, "..", "apkeditor.jar")
         apkeditor_path = os.path.abspath(apkeditor_path)
 
         print(apkeditor_path)
